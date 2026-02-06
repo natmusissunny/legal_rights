@@ -27,23 +27,34 @@ class Config:
         "https://sh.bendibao.com/2022831/258695.shtm",  # 本地宝
     ]
 
-    # LLM模式选择: 'claude', 'qwen', 'zhipu'
+    # LLM模式选择
+    # 可选值: 'auto', 'claude', 'qwen', 'deepseek', 'zhipu', 'kimi', 'minimax'
     LLM_MODE: str = "auto"  # auto 会根据配置的API密钥自动选择
 
-    # API配置
-    CLAUDE_API_KEY: Optional[str] = None
-    OPENAI_API_KEY: Optional[str] = None
-    DASHSCOPE_API_KEY: Optional[str] = None  # 通义千问
-    ZHIPUAI_API_KEY: Optional[str] = None    # 智谱AI
+    # ==================== API密钥配置 ====================
+
+    # 对话生成 (LLM) API密钥
+    CLAUDE_API_KEY: Optional[str] = None       # Claude (国际，需代理)
+    DASHSCOPE_API_KEY: Optional[str] = None    # 通义千问 Qwen (国内，推荐)
+    DEEPSEEK_API_KEY: Optional[str] = None     # DeepSeek (国内，便宜)
+    KIMI_API_KEY: Optional[str] = None         # Kimi 月之暗面 (国内)
+    MINIMAX_API_KEY: Optional[str] = None      # 元宝 MiniMax (国内)
+    MINIMAX_GROUP_ID: Optional[str] = None     # 元宝需要的 GroupID
+
+    # 文本向量化 (Embedding) API密钥
+    OPENAI_API_KEY: Optional[str] = None       # OpenAI (国际，需代理)
+    ZHIPUAI_API_KEY: Optional[str] = None      # 智谱AI (国内，推荐)
 
     RATE_LIMIT_PER_SECOND: int = 4
 
-    # 向量检索配置
+    # ==================== 向量检索配置 ====================
     CHUNK_SIZE: int = 512  # 文档分块大小（tokens）
     CHUNK_OVERLAP: int = 50  # 分块重叠大小（tokens）
     TOP_K_RESULTS: int = 5  # 检索返回Top-K结果
     EMBEDDING_MODEL: str = "text-embedding-3-small"  # OpenAI embedding模型
     ZHIPU_EMBEDDING_MODEL: str = "embedding-2"  # 智谱AI embedding模型
+
+    # ==================== LLM模型配置 ====================
 
     # Claude配置
     CLAUDE_MODEL: str = "claude-sonnet-4-5"  # Claude模型 (2026年最新)
@@ -51,19 +62,35 @@ class Config:
     # 通义千问配置
     QWEN_MODEL: str = "qwen-max"  # qwen-max, qwen-plus, qwen-turbo
 
-    # 智谱AI配置
-    ZHIPU_MODEL: str = "glm-4"  # glm-4, glm-4-plus
+    # DeepSeek配置
+    DEEPSEEK_MODEL: str = "deepseek-chat"  # deepseek-chat, deepseek-coder
+
+    # 智谱AI配置 (GLM)
+    ZHIPU_CHAT_MODEL: str = "glm-4-flash"  # glm-4-flash (便宜), glm-4-plus
+
+    # Kimi配置 (月之暗面)
+    KIMI_MODEL: str = "moonshot-v1-8k"  # moonshot-v1-8k, moonshot-v1-32k
+
+    # 元宝配置 (MiniMax)
+    MINIMAX_MODEL: str = "abab6.5s-chat"  # abab6.5s-chat, abab6.5-chat
 
     MAX_TOKENS: int = 2000  # 最大生成token数
 
     @classmethod
     def load(cls):
         """加载配置（从环境变量或.env文件）"""
-        # 加载所有可能的API密钥
+        # 加载所有LLM API密钥
         cls.CLAUDE_API_KEY = get_api_key('CLAUDE_API_KEY')
-        cls.OPENAI_API_KEY = get_api_key('OPENAI_API_KEY')
         cls.DASHSCOPE_API_KEY = get_api_key('DASHSCOPE_API_KEY')
+        cls.DEEPSEEK_API_KEY = get_api_key('DEEPSEEK_API_KEY')
+        cls.KIMI_API_KEY = get_api_key('KIMI_API_KEY')
+        cls.MINIMAX_API_KEY = get_api_key('MINIMAX_API_KEY')
+        cls.MINIMAX_GROUP_ID = get_api_key('MINIMAX_GROUP_ID')
+
+        # 加载Embedding API密钥
+        cls.OPENAI_API_KEY = get_api_key('OPENAI_API_KEY')
         cls.ZHIPUAI_API_KEY = get_api_key('ZHIPUAI_API_KEY')
+
         cls.RATE_LIMIT_PER_SECOND = get_rate_limit(default=4)
 
         # 加载LLM模式配置
@@ -82,13 +109,19 @@ class Config:
         if cls.LLM_MODE != "auto":
             return cls.LLM_MODE
 
-        # 优先级：国内大模型 > Claude
-        if cls.DASHSCOPE_API_KEY:
-            return "qwen"
+        # 优先级：便宜的国内大模型 > 其他国内 > Claude
+        if cls.DEEPSEEK_API_KEY:
+            return "deepseek"  # 最便宜，推荐
+        elif cls.DASHSCOPE_API_KEY:
+            return "qwen"  # 通义千问，稳定
         elif cls.ZHIPUAI_API_KEY:
-            return "zhipu"
+            return "zhipu"  # 智谱AI GLM
+        elif cls.KIMI_API_KEY:
+            return "kimi"  # Kimi 月之暗面
+        elif cls.MINIMAX_API_KEY:
+            return "minimax"  # 元宝 MiniMax
         elif cls.CLAUDE_API_KEY:
-            return "claude"
+            return "claude"  # Claude，需代理
         else:
             return None
 

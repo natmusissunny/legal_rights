@@ -382,7 +382,7 @@ def start_chat(reset: bool = False):
 
 def test_api_connection():
     """测试API连接"""
-    from .agent import ClaudeClient
+    from .agent.llm_factory import create_llm_client
     from .knowledge.embedding_factory import create_embedding_client
 
     print("\n🔍 测试API连接")
@@ -393,15 +393,15 @@ def test_api_connection():
     print("-" * 80)
     print_api_key_status()
 
-    # 测试Claude API
-    print("\n[2] 测试 Claude API")
+    # 测试 LLM API
+    print("\n[2] 测试 LLM API")
     print("-" * 80)
 
     try:
-        claude = ClaudeClient()
-        print("正在调用Claude API...", end=" ", flush=True)
+        llm_client = create_llm_client()
+        print("正在调用LLM API...", end=" ", flush=True)
 
-        response = claude.complete(
+        response = llm_client.complete(
             prompt="请用一句话说明什么是经济补偿金。",
             system="你是劳动法律师。",
             temperature=0.5,

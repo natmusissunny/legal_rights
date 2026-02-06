@@ -15,9 +15,14 @@ fpdf2==2.7.9  # 轻量级PDF生成库，支持中文，无需系统依赖
 faiss-cpu==1.8.0
 numpy==1.26.0
 
-# AI模型调用
-anthropic==0.25.0
-openai==1.0.0
+# AI模型调用 - 核心包（必选）
+anthropic==0.25.0  # Claude
+openai==1.0.0      # OpenAI / DeepSeek / Kimi (兼容)
+
+# AI模型调用 - 国内大模型（可选，根据需要安装）
+# 通义千问: pip install dashscope
+# 智谱AI:   pip install zhipuai
+# 注意: DeepSeek 和 Kimi 使用 openai 包，无需额外安装
 
 # 中文分词（可选）
 jieba==0.42.1

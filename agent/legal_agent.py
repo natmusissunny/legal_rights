@@ -1,13 +1,13 @@
 """
 法律维权智能Agent
-核心问答逻辑，整合RAG和Claude API
+核心问答逻辑，整合RAG和LLM API
 """
 from typing import Optional
 from datetime import datetime
 
 from ..models import Answer, QuestionType
 from ..config import Config
-from .claude_client import ClaudeClient
+from .llm_factory import create_llm_client, LLMClientBase
 from .prompt_templates import PromptTemplates
 from .conversation_manager import ConversationManager
 from ..knowledge import KnowledgeRetriever
@@ -18,7 +18,7 @@ class LegalAgent:
 
     def __init__(
         self,
-        claude_client: Optional[ClaudeClient] = None,
+        llm_client: Optional[LLMClientBase] = None,
         retriever: Optional[KnowledgeRetriever] = None,
         conversation_manager: Optional[ConversationManager] = None
     ):
@@ -26,11 +26,11 @@ class LegalAgent:
         初始化Agent
 
         Args:
-            claude_client: Claude客户端
+            llm_client: LLM客户端（自动选择或手动指定）
             retriever: 知识检索器
             conversation_manager: 对话管理器
         """
-        self.claude = claude_client or ClaudeClient()
+        self.llm = llm_client or create_llm_client()
         self.retriever = retriever or KnowledgeRetriever(auto_load=True)
         self.conversation = conversation_manager or ConversationManager()
         self.templates = PromptTemplates()
@@ -106,7 +106,7 @@ class LegalAgent:
         # 4. 调用Claude生成答案
         print("🤖 生成回答...", end=" ")
         try:
-            answer_text = self.claude.complete(
+            answer_text = self.llm.complete(
                 prompt=prompt,
                 system=self.templates.SYSTEM_ROLE,
                 temperature=0.7
