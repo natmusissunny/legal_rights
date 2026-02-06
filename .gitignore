@@ -39,3 +39,5 @@ htmlcov/
 # 临时文件
 *.tmp
 *.bak
+SECURITY_CLEAN_REPORT.md
+CLEAN_AND_PUSH.md

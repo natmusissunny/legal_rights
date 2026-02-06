@@ -52,7 +52,7 @@
 #### 1. 克隆仓库
 
 ```bash
-git clone https://github.com/natmusissunny/legal-rights-assistant.git
+git clone https://github.com/YOUR_GITHUB_USERNAME/legal-rights-assistant.git
 cd legal-rights-assistant
 ```
 
@@ -404,8 +404,8 @@ mypy .
 
 ## 📞 联系方式
 
-- **问题反馈**: [GitHub Issues](https://github.com/natmusissunny/legal-rights-assistant/issues)
-- **功能建议**: [GitHub Discussions](https://github.com/natmusissunny/legal-rights-assistant/discussions)
+- **问题反馈**: [GitHub Issues](https://github.com/YOUR_GITHUB_USERNAME/legal-rights-assistant/issues)
+- **功能建议**: [GitHub Discussions](https://github.com/YOUR_GITHUB_USERNAME/legal-rights-assistant/discussions)
 
 ---
 
@@ -425,6 +425,6 @@ mypy .
 
 **如果觉得有帮助，请给个 ⭐️ Star！**
 
-Made with ❤️ by [Your Name](https://github.com/natmusissunny)
+Made with ❤️ by [Your Name](https://github.com/YOUR_GITHUB_USERNAME)
 
 </div>
