@@ -11,11 +11,11 @@ sys.path.insert(0, str(project_root.parent))
 
 from legal_rights.scraper import HTMLCleaner, ContentParser
 from legal_rights.knowledge import (
-    EmbeddingClient,
     DocumentChunker,
     VectorIndexer,
     KnowledgeRetriever
 )
+from legal_rights.knowledge.embedding_factory import create_embedding_client
 from legal_rights.config import Config
 
 
@@ -25,9 +25,8 @@ def test_embedding_client():
     print("=" * 80)
 
     try:
-        client = EmbeddingClient()
+        client = create_embedding_client()
         print("✅ 客户端初始化成功")
-        print(f"   模型: {client.model}")
         print(f"   维度: {client.get_embedding_dimension()}")
 
         # 测试单个文本
@@ -155,9 +154,13 @@ def main():
     print()
 
     # 检查API密钥
-    if not Config.OPENAI_API_KEY:
-        print("❌ 错误: 未配置 OPENAI_API_KEY")
-        print("   请在 .env 文件中添加: OPENAI_API_KEY=your-key")
+    selected_embedding = Config.auto_select_embedding()
+    if not selected_embedding:
+        print("❌ 错误: 未配置 Embedding API 密钥")
+        print("   请在 .env 文件中配置:")
+        print("   OPENAI_API_KEY=your-key  # OpenAI方案")
+        print("   或")
+        print("   ZHIPUAI_API_KEY=your-key  # 智谱AI方案（推荐）")
         return
 
     results = {

@@ -102,6 +102,7 @@ class WebScraper:
         # 抓取网页
         print(f"🌐 抓取中: {url}")
 
+        # 根据不同网站设置不同的请求头
         headers = {
             "User-Agent": self.user_agent,
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
@@ -109,11 +110,19 @@ class WebScraper:
             "Accept-Encoding": "gzip, deflate, br",
             "Connection": "keep-alive",
             "Upgrade-Insecure-Requests": "1",
-            "Sec-Fetch-Dest": "document",
-            "Sec-Fetch-Mode": "navigate",
-            "Sec-Fetch-Site": "none",
             "Cache-Control": "max-age=0",
         }
+
+        # 为特定网站添加 Referer（模拟从百度搜索进入）
+        if "m12333.cn" in url or "bendibao.com" in url:
+            headers["Referer"] = "https://www.baidu.com/"
+            headers["Sec-Fetch-Dest"] = "document"
+            headers["Sec-Fetch-Mode"] = "navigate"
+            headers["Sec-Fetch-Site"] = "cross-site"
+        else:
+            headers["Sec-Fetch-Dest"] = "document"
+            headers["Sec-Fetch-Mode"] = "navigate"
+            headers["Sec-Fetch-Site"] = "none"
 
         for attempt in range(max_retries):
             try:
@@ -150,10 +159,31 @@ class WebScraper:
                     return html
 
             except httpx.HTTPStatusError as e:
-                print(f"❌ HTTP错误 {e.response.status_code}: {url}")
-                if e.response.status_code in [404, 403, 401]:
-                    # 不重试这些错误
+                status_code = e.response.status_code
+                print(f"❌ HTTP错误 {status_code}: {url}")
+
+                # 412 错误通常是反爬虫，可以重试但增加等待时间
+                if status_code == 412:
+                    if attempt < max_retries - 1:
+                        wait_time = 3 * (attempt + 1)  # 3s, 6s, 9s
+                        print(f"⏳ 检测到反爬虫 (412)，等待 {wait_time}s 后重试...")
+                        await asyncio.sleep(wait_time)
+                        continue
+                    else:
+                        print(f"💡 建议: 该网站 ({url}) 可能需要浏览器访问或已加强反爬虫")
+                        return None
+
+                # 404, 403, 401 不重试
+                if status_code in [404, 403, 401]:
                     return None
+
+                # 502, 503 等服务器错误可以重试
+                if status_code in [502, 503, 504]:
+                    if attempt < max_retries - 1:
+                        wait_time = 2 ** attempt
+                        print(f"⏳ 服务器错误 ({status_code})，等待 {wait_time}s 后重试...")
+                        await asyncio.sleep(wait_time)
+                        continue
             except httpx.TimeoutException:
                 print(f"⏱️  请求超时 (尝试 {attempt + 1}/{max_retries}): {url}")
             except Exception as e:

@@ -8,7 +8,7 @@ from pathlib import Path
 from ..models import Document
 from ..config import Config
 from .vector_indexer import VectorIndexer
-from .embedding_client import EmbeddingClient
+from .embedding_factory import create_embedding_client, EmbeddingClientBase
 
 
 class KnowledgeRetriever:

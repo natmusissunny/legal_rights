@@ -383,7 +383,7 @@ def start_chat(reset: bool = False):
 def test_api_connection():
     """测试API连接"""
     from .agent import ClaudeClient
-    from .knowledge import EmbeddingClient
+    from .knowledge.embedding_factory import create_embedding_client
 
     print("\n🔍 测试API连接")
     print("=" * 80)
@@ -415,12 +415,12 @@ def test_api_connection():
         print(f"❌ 失败")
         print(f"错误: {e}")
 
-    # 测试OpenAI Embedding API
-    print("\n[3] 测试 OpenAI Embedding API")
+    # 测试 Embedding API
+    print("\n[3] 测试 Embedding API")
     print("-" * 80)
 
     try:
-        embedding_client = EmbeddingClient()
+        embedding_client = create_embedding_client()
         print("正在生成向量...", end=" ", flush=True)
 
         embedding = embedding_client.embed("测试文本")

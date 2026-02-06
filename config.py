@@ -17,10 +17,14 @@ class Config:
     VECTORS_DIR = DATA_DIR / "vectors"
 
     # 目标URL列表
+    # 提示: 如果某个URL抓取失败（HTTP 412/404等），可以:
+    #   1. 手动下载: python scripts/add_to_cache.py "<URL>" <文件路径>
+    #   2. 跳过该URL: 将下面对应的行注释掉（在前面加 #）
+    #   3. 详细说明: 参见 docs/SCRAPING_ISSUES.md
     TARGET_URLS = [
-        "https://m12333.cn/qa/myyuf.html",
-        "https://www.hshfy.sh.cn/shfy/web/xxnr.jsp?pa=aaWQ9MjAxNzcwODUmeGg9MSZsbWRtPWxtNTE5z&zd=xwzx",
-        "https://sh.bendibao.com/2022831/258695.shtm",
+        "https://m12333.cn/qa/myyuf.html",  # 12333劳动保障咨询
+        "https://www.hshfy.sh.cn/shfy/web/xxnr.jsp?pa=aaWQ9MjAxNzcwODUmeGg9MSZsbWRtPWxtNTE5z&zd=xwzx",  # 上海高院
+        "https://sh.bendibao.com/2022831/258695.shtm",  # 本地宝
     ]
 
     # LLM模式选择: 'claude', 'qwen', 'zhipu'

@@ -11,7 +11,7 @@ import faiss
 
 from ..models import Document, StructuredContent
 from ..config import Config
-from .embedding_client import EmbeddingClient
+from .embedding_factory import create_embedding_client, EmbeddingClientBase
 from .document_chunker import DocumentChunker
 
 
@@ -20,17 +20,18 @@ class VectorIndexer:
 
     def __init__(
         self,
-        embedding_client: Optional[EmbeddingClient] = None,
+        embedding_client: Optional[EmbeddingClientBase] = None,
         chunker: Optional[DocumentChunker] = None
     ):
         """
         初始化索引构建器
 
         Args:
-            embedding_client: Embedding客户端
+            embedding_client: Embedding客户端（如果为None则自动选择）
             chunker: 文档分块器
         """
-        self.embedding_client = embedding_client or EmbeddingClient()
+        # 使用工厂模式自动选择Embedding客户端
+        self.embedding_client = embedding_client or create_embedding_client()
         self.chunker = chunker or DocumentChunker()
         self.index: Optional[faiss.Index] = None
         self.documents: List[Document] = []

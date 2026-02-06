@@ -6,7 +6,40 @@
 
 ## 📥 安装和配置
 
-### Q1: 提示"ModuleNotFoundError: No module named 'legal_rights'"
+### Q1: 网页抓取失败 (HTTP 412/404/502)
+
+**现象**:
+```
+❌ HTTP错误 412: https://m12333.cn/qa/myyuf.html
+❌ HTTP错误 404: https://sh.bendibao.com/...
+❌ HTTP错误 502: ...
+```
+
+**原因**:
+- HTTP 412: 网站反爬虫机制
+- HTTP 404: 页面不存在或已删除
+- HTTP 502: 服务器临时故障
+
+**快速解决方案**:
+
+```bash
+# 方法1: 手动下载页面（推荐）
+# 1. 浏览器打开该URL
+# 2. 按 Ctrl+S 保存网页
+# 3. 使用脚本添加到缓存
+python scripts/add_to_cache.py "https://m12333.cn/qa/myyuf.html" ~/Downloads/page.html
+
+# 方法2: 使用已有缓存（如果之前抓取成功过）
+# build-kb 默认会使用缓存，直接重新执行即可
+python -m legal_rights build-kb
+
+# 方法3: 跳过失败的URL
+# 编辑 config.py，注释掉失败的URL
+```
+
+**详细说明**: 参见 [docs/SCRAPING_ISSUES.md](SCRAPING_ISSUES.md)
+
+### Q2: 提示"ModuleNotFoundError: No module named 'legal_rights'"
 
 **原因**: Python 找不到项目模块
 
