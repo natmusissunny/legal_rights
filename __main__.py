@@ -147,6 +147,26 @@ def build_knowledge_base(force: bool = False, skip_scrape: bool = False):
     print("\n🏗️  开始构建知识库")
     print("=" * 80)
 
+    # 检查必需的API密钥
+    print("\n[检查] API配置")
+    print("-" * 80)
+
+    selected_embedding = Config.auto_select_embedding()
+    if not selected_embedding:
+        print("❌ 错误: 未配置 Embedding API 密钥")
+        print("\n构建知识库需要 Embedding API 将文本转换为向量。")
+        print("\n请在 .env 文件中配置以下任一项:")
+        print("  ZHIPUAI_API_KEY=your-key   # 智谱AI（推荐，国内）")
+        print("  OPENAI_API_KEY=your-key    # OpenAI（国际，需代理）")
+        print("\n💡 推荐使用智谱AI:")
+        print("  1. 访问: https://open.bigmodel.cn/")
+        print("  2. 注册并获取API密钥")
+        print("  3. 在 .env 中添加: ZHIPUAI_API_KEY=你的密钥")
+        print("\n详细说明: docs/MULTI_MODEL_SUPPORT.md")
+        return
+
+    print(f"✅ Embedding API: {selected_embedding}")
+
     structured_contents = []
 
     # 步骤1: 网页抓取

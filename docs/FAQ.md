@@ -6,7 +6,53 @@
 
 ## 📥 安装和配置
 
-### Q1: 网页抓取失败 (HTTP 412/404/502)
+### Q1: build-kb 报错 "OpenAI API key is required"
+
+**现象**:
+```
+❌ 索引构建失败: OpenAI API key is required
+❌ 错误: 未配置 Embedding API 密钥
+```
+
+**原因**:
+- `build-kb` 命令需要 Embedding API 来构建向量索引
+- 不需要对话模型（LLM）API
+
+**解决方案**:
+
+配置**任意一个** Embedding API密钥:
+
+```env
+# 方式1: 智谱AI（推荐，国内）
+ZHIPUAI_API_KEY=your-key
+
+# 方式2: OpenAI（国际，需代理）
+OPENAI_API_KEY=your-key
+```
+
+**最简单的方式** - 使用智谱AI一个密钥完成所有功能:
+
+```bash
+# 1. 获取密钥: https://open.bigmodel.cn/
+# 2. 配置 .env
+echo "ZHIPUAI_API_KEY=your-key" >> .env
+echo "LLM_MODE=zhipu" >> .env
+
+# 3. 安装依赖
+pip install zhipuai
+
+# 4. 构建知识库
+python -m legal_rights build-kb
+
+# 5. 开始使用
+python -m legal_rights ask "问题"
+```
+
+**注意**: 智谱AI的一个API密钥可以同时用于:
+- 对话生成 (LLM)
+- 文本向量化 (Embedding)
+
+### Q2: 网页抓取失败 (HTTP 412/404/502)
 
 **现象**:
 ```
