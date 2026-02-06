@@ -1,0 +1,246 @@
+{
+  "test_suite": "法律维权智能助手测试用例",
+  "version": "1.0",
+  "created_at": "2026-02-06",
+  "description": "包含各类问题的标准测试用例，用于验证系统准确性",
+
+  "test_cases": [
+    {
+      "id": "TC001",
+      "category": "经济补偿",
+      "question": "公司辞退员工应该给补偿吗？",
+      "expected_type": "COMPENSATION",
+      "expected_keywords": ["经济补偿", "劳动合同法", "第四十六条", "协商一致", "无过失辞退"],
+      "min_confidence": 0.8,
+      "expected_answer_points": [
+        "经济补偿需要根据具体情况判断",
+        "协商一致解除需要支付补偿",
+        "无过失辞退需要支付补偿",
+        "员工严重违纪不需要补偿"
+      ]
+    },
+    {
+      "id": "TC002",
+      "category": "赔偿计算",
+      "question": "如何计算N+1补偿？",
+      "expected_type": "CALCULATION",
+      "expected_keywords": ["月工资", "工作年限", "代通知金", "计算公式"],
+      "min_confidence": 0.8,
+      "expected_answer_points": [
+        "N = 工作年限（每满1年支付1个月工资）",
+        "+1 = 代通知金（未提前30天通知）",
+        "计算公式: N+1 = (工作年限 × 月工资) + 1个月工资",
+        "工资基数为前12个月平均工资"
+      ]
+    },
+    {
+      "id": "TC003",
+      "category": "赔偿计算",
+      "question": "工作3年月薪8000元，被辞退应该赔多少？",
+      "expected_type": "CALCULATION",
+      "expected_keywords": ["24000", "8000", "3个月", "N+1"],
+      "min_confidence": 0.75,
+      "expected_answer_points": [
+        "工作年限: 3年",
+        "月工资: 8000元",
+        "如果是N补偿: 3 × 8000 = 24000元",
+        "如果是N+1补偿: 4 × 8000 = 32000元",
+        "如果是2N赔偿: 6 × 8000 = 48000元"
+      ]
+    },
+    {
+      "id": "TC004",
+      "category": "维权流程",
+      "question": "公司不给补偿怎么办？",
+      "expected_type": "PROCEDURE",
+      "expected_keywords": ["劳动仲裁", "协商", "证据", "申请"],
+      "min_confidence": 0.8,
+      "expected_answer_points": [
+        "先尝试与公司协商",
+        "协商不成可申请劳动仲裁",
+        "准备相关证据（劳动合同、工资条等）",
+        "向劳动仲裁委员会提交申请",
+        "仲裁时效为1年"
+      ]
+    },
+    {
+      "id": "TC005",
+      "category": "维权流程",
+      "question": "劳动仲裁需要准备什么材料？",
+      "expected_type": "PROCEDURE",
+      "expected_keywords": ["仲裁申请书", "身份证", "劳动合同", "工资条", "证据"],
+      "min_confidence": 0.8,
+      "expected_answer_points": [
+        "仲裁申请书",
+        "身份证明（身份证复印件）",
+        "劳动关系证明（劳动合同、工资条、考勤记录等）",
+        "解除劳动关系证明",
+        "证据清单"
+      ]
+    },
+    {
+      "id": "TC006",
+      "category": "法律依据",
+      "question": "经济补偿的法律依据是什么？",
+      "expected_type": "LEGAL_BASIS",
+      "expected_keywords": ["劳动合同法", "第四十六条", "第四十七条"],
+      "min_confidence": 0.8,
+      "expected_answer_points": [
+        "《劳动合同法》第四十六条规定需要支付经济补偿的情形",
+        "《劳动合同法》第四十七条规定经济补偿的计算标准",
+        "按工作年限计算，每满1年支付1个月工资"
+      ]
+    },
+    {
+      "id": "TC007",
+      "category": "特殊情况",
+      "question": "试用期被辞退有补偿吗？",
+      "expected_type": "COMPENSATION",
+      "expected_keywords": ["试用期", "不符合录用条件", "证明", "补偿"],
+      "min_confidence": 0.75,
+      "expected_answer_points": [
+        "如果是因不符合录用条件被辞退，无需支付补偿",
+        "但公司需要举证证明不符合录用条件",
+        "如果公司无法举证，属于违法解除，需支付赔偿金",
+        "赔偿金 = 工作时间 × 2 × 月工资"
+      ]
+    },
+    {
+      "id": "TC008",
+      "category": "赔偿计算",
+      "question": "2N赔偿金怎么算？",
+      "expected_type": "CALCULATION",
+      "expected_keywords": ["违法解除", "赔偿金", "2倍", "经济补偿"],
+      "min_confidence": 0.8,
+      "expected_answer_points": [
+        "2N赔偿金适用于违法解除劳动合同",
+        "计算公式: 2N = 工作年限 × 2 × 月工资",
+        "赔偿金是经济补偿金的2倍",
+        "支付赔偿金后不再支付经济补偿金"
+      ]
+    },
+    {
+      "id": "TC009",
+      "category": "特殊情况",
+      "question": "严重违纪被开除有补偿吗？",
+      "expected_type": "COMPENSATION",
+      "expected_keywords": ["严重违纪", "过失性辞退", "无需补偿", "规章制度"],
+      "min_confidence": 0.75,
+      "expected_answer_points": [
+        "严重违纪属于过失性辞退",
+        "无需支付经济补偿",
+        "但需要满足两个条件：",
+        "1. 规章制度合法有效并已公示",
+        "2. 员工行为确实构成严重违纪"
+      ]
+    },
+    {
+      "id": "TC010",
+      "category": "特殊情况",
+      "question": "公司倒闭有补偿吗？",
+      "expected_type": "COMPENSATION",
+      "expected_keywords": ["破产", "清算", "经济补偿", "优先支付"],
+      "min_confidence": 0.75,
+      "expected_answer_points": [
+        "公司倒闭需要支付经济补偿",
+        "按工作年限计算: 每满1年支付1个月工资",
+        "破产清算时，职工工资和补偿金优先支付",
+        "如果公司资不抵债，可能无法全额支付"
+      ]
+    },
+    {
+      "id": "TC011",
+      "category": "复杂场景",
+      "question": "我在公司工作了5年，月薪12000元，公司说要裁员，我能拿到多少补偿？",
+      "expected_type": "CALCULATION",
+      "expected_keywords": ["5年", "12000", "60000", "裁员", "经济补偿"],
+      "min_confidence": 0.70,
+      "expected_answer_points": [
+        "工作年限: 5年",
+        "月工资: 12000元",
+        "经济补偿: 5 × 12000 = 60000元",
+        "如果公司未提前30天通知，还应支付1个月代通知金12000元",
+        "总计: 60000-72000元"
+      ]
+    },
+    {
+      "id": "TC012",
+      "category": "法律依据",
+      "question": "N+1的法律条文是什么？",
+      "expected_type": "LEGAL_BASIS",
+      "expected_keywords": ["劳动合同法", "第四十条", "代通知金", "提前通知"],
+      "min_confidence": 0.8,
+      "expected_answer_points": [
+        "《劳动合同法》第四十条规定了3种情形",
+        "需要提前30日书面通知或额外支付1个月工资",
+        "+1指的是代通知金"
+      ]
+    },
+    {
+      "id": "TC013",
+      "category": "边界测试",
+      "question": "我被公司辞退了",
+      "expected_type": "GENERAL",
+      "expected_keywords": ["具体情况", "原因", "工作年限", "月薪"],
+      "min_confidence": 0.5,
+      "expected_answer_points": [
+        "应该询问更多细节",
+        "需要了解辞退原因",
+        "需要了解工作年限和工资",
+        "提供初步建议"
+      ]
+    },
+    {
+      "id": "TC014",
+      "category": "边界测试",
+      "question": "如何注册公司？",
+      "expected_type": "GENERAL",
+      "expected_keywords": ["超出范围", "专注于", "离职维权"],
+      "min_confidence": 0.3,
+      "expected_answer_points": [
+        "该问题超出了系统服务范围",
+        "系统专注于离职员工劳动法维权",
+        "建议咨询工商注册相关专业机构"
+      ]
+    },
+    {
+      "id": "TC015",
+      "category": "多轮对话",
+      "question": "我工作了3年被辞退",
+      "follow_up": "月薪8000元",
+      "follow_up2": "公司说是因为业绩不好",
+      "expected_type": "CALCULATION",
+      "expected_keywords": ["24000", "证据", "考核标准"],
+      "min_confidence": 0.70,
+      "expected_answer_points": [
+        "能够理解多轮对话上下文",
+        "综合之前的信息给出答案",
+        "经济补偿: 3 × 8000 = 24000元",
+        "业绩不好需要公司举证",
+        "建议保留考核证据"
+      ]
+    }
+  ],
+
+  "evaluation_criteria": {
+    "confidence_thresholds": {
+      "high": 0.8,
+      "medium": 0.6,
+      "low": 0.4
+    },
+    "keyword_matching": {
+      "min_match_rate": 0.5,
+      "description": "答案中应包含至少50%的预期关键词"
+    },
+    "answer_completeness": {
+      "min_points_covered": 0.6,
+      "description": "答案应覆盖至少60%的预期要点"
+    }
+  },
+
+  "testing_instructions": {
+    "manual_testing": "逐个问题通过CLI测试: python -m legal_rights ask \"问题\"",
+    "batch_testing": "批量测试: python -m legal_rights.scripts.batch_test_questions",
+    "evaluation": "对比实际答案与expected_answer_points，检查关键词覆盖率和置信度"
+  }
+}

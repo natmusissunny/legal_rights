@@ -1,0 +1,26 @@
+# HTTP客户端
+httpx==0.27.0
+
+# 数据模型
+pydantic==2.6.0
+
+# 网页解析
+beautifulsoup4==4.12.0
+lxml==5.1.0
+
+# PDF生成
+fpdf2==2.7.9  # 轻量级PDF生成库，支持中文，无需系统依赖
+
+# 向量检索
+faiss-cpu==1.8.0
+numpy==1.26.0
+
+# AI模型调用
+anthropic==0.25.0
+openai==1.0.0
+
+# 中文分词（可选）
+jieba==0.42.1
+
+# CLI增强（可选）
+rich==13.7.0
