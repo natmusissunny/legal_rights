@@ -1,12 +1,12 @@
 #!/bin/bash
 
-# 法律维权智能助手 - 一键安装脚本
-# 适合小白用户快速部署
+# 法律维权智能助手 - 一键安装脚本 v1.1.0
+# 支持多种大模型配置
 
 set -e
 
 echo "=========================================="
-echo "🚀 法律维权智能助手 - 一键安装"
+echo "🚀 法律维权智能助手 - 一键安装 v1.1.0"
 echo "=========================================="
 echo ""
 
@@ -14,6 +14,7 @@ echo ""
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 RED='\033[0;31m'
+BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # 检查Python版本
@@ -50,18 +51,7 @@ echo "------------------------------------------"
 echo "正在安装基础依赖..."
 pip3 install -r requirements.txt --quiet
 
-echo ""
-echo -e "${YELLOW}🇨🇳 是否安装国内大模型支持? (推荐)${NC}"
-echo "   安装后可使用通义千问和智谱AI（成本更低，速度更快）"
-read -p "   安装? (y/n，默认 y): " install_domestic
-
-if [ -z "$install_domestic" ] || [ "$install_domestic" = "y" ] || [ "$install_domestic" = "Y" ]; then
-    echo "正在安装国内大模型支持..."
-    pip3 install dashscope zhipuai --quiet
-    echo -e "${GREEN}✅ 国内大模型支持已安装${NC}"
-else
-    echo "跳过国内大模型支持"
-fi
+echo -e "${GREEN}✅ 基础依赖已安装${NC}"
 
 echo ""
 
@@ -85,60 +75,160 @@ fi
 
 if [ "$HAS_ENV" != "true" ]; then
     echo ""
-    echo "请选择配置方案:"
-    echo "  1) Claude + OpenAI (国际版)"
-    echo "  2) 通义千问 + 智谱AI (国内版，推荐)"
-    echo "  3) 跳过配置（稍后手动配置）"
-    read -p "选择 (1/2/3，默认 2): " config_choice
+    echo -e "${BLUE}请选择配置方案:${NC}"
+    echo ""
+    echo "  ${GREEN}1) 智谱AI 单一密钥${NC} ⭐ 推荐新手"
+    echo "     - 只需1个密钥"
+    echo "     - 配置最简单"
+    echo "     - 成本: ¥0.01/次"
+    echo ""
+    echo "  ${GREEN}2) DeepSeek + 智谱AI${NC} 💰 最便宜"
+    echo "     - 需要2个密钥"
+    echo "     - 成本: ¥0.005/次"
+    echo "     - 质量很好"
+    echo ""
+    echo "  ${GREEN}3) 通义千问 + 智谱AI${NC} 🏢 企业稳定"
+    echo "     - 需要2个密钥"
+    echo "     - 成本: ¥0.02/次"
+    echo "     - 阿里云背景"
+    echo ""
+    echo "  4) Claude + OpenAI (国际版，需代理)"
+    echo "     - 需要2个密钥"
+    echo "     - 成本: $0.013/次"
+    echo "     - 质量最高"
+    echo ""
+    echo "  5) 跳过配置（稍后手动配置）"
+    echo ""
+    read -p "选择 (1-5，默认 1): " config_choice
 
-    config_choice=${config_choice:-2}
+    config_choice=${config_choice:-1}
 
     if [ "$config_choice" = "1" ]; then
+        # 智谱AI 单一密钥
         echo ""
-        echo "配置 Claude + OpenAI:"
-        read -p "  Claude API Key: " claude_key
-        read -p "  OpenAI API Key: " openai_key
+        echo -e "${BLUE}配置智谱AI (一个密钥搞定所有功能):${NC}"
+        echo ""
+        echo "📌 如何获取:"
+        echo "   1. 访问: https://open.bigmodel.cn/"
+        echo "   2. 注册并登录"
+        echo "   3. 进入「API Keys」页面"
+        echo "   4. 创建新的 API Key"
+        echo ""
+        read -p "  智谱AI API Key: " zhipu_key
+
+        # 检查是否已安装zhipuai
+        echo ""
+        echo "正在安装智谱AI SDK..."
+        pip3 install zhipuai --quiet
 
         cat > .env << EOF
-# Claude API 配置（国际版）
-CLAUDE_API_KEY=$claude_key
-OPENAI_API_KEY=$openai_key
+# 智谱AI 配置（单一密钥方案）
+ZHIPUAI_API_KEY=$zhipu_key
 
-# LLM模式: auto, claude, qwen, zhipu
+# LLM模式: 使用智谱AI
+LLM_MODE=zhipu
+
+# 速率限制（每秒请求数）
+RATE_LIMIT_PER_SECOND=4
+EOF
+        echo -e "${GREEN}✅ .env 文件已创建（智谱AI）${NC}"
+        echo -e "${BLUE}💡 这个密钥可以同时用于对话和向量化${NC}"
+
+    elif [ "$config_choice" = "2" ]; then
+        # DeepSeek + 智谱AI
+        echo ""
+        echo -e "${BLUE}配置 DeepSeek + 智谱AI (最便宜方案):${NC}"
+        echo ""
+        echo "📌 如何获取:"
+        echo "   DeepSeek: https://platform.deepseek.com/"
+        echo "   智谱AI: https://open.bigmodel.cn/"
+        echo ""
+        read -p "  DeepSeek API Key: " deepseek_key
+        read -p "  智谱AI API Key: " zhipu_key
+
+        echo ""
+        echo "正在安装智谱AI SDK..."
+        pip3 install zhipuai --quiet
+
+        cat > .env << EOF
+# DeepSeek + 智谱AI 配置（最便宜方案）
+DEEPSEEK_API_KEY=$deepseek_key
+ZHIPUAI_API_KEY=$zhipu_key
+
+# LLM模式: 自动选择（优先DeepSeek）
 LLM_MODE=auto
 
 # 速率限制（每秒请求数）
 RATE_LIMIT_PER_SECOND=4
 EOF
-        echo -e "${GREEN}✅ .env 文件已创建（Claude + OpenAI）${NC}"
+        echo -e "${GREEN}✅ .env 文件已创建（DeepSeek + 智谱AI）${NC}"
+        echo -e "${BLUE}💡 DeepSeek用于对话，智谱AI用于向量化${NC}"
 
-    elif [ "$config_choice" = "2" ]; then
+    elif [ "$config_choice" = "3" ]; then
+        # 通义千问 + 智谱AI
         echo ""
-        echo "配置 通义千问 + 智谱AI:"
+        echo -e "${BLUE}配置 通义千问 + 智谱AI (国内稳定方案):${NC}"
         echo ""
-        echo "📌 如何获取 API 密钥:"
+        echo "📌 如何获取:"
         echo "   通义千问: https://dashscope.console.aliyun.com/"
         echo "   智谱AI: https://open.bigmodel.cn/"
         echo ""
         read -p "  通义千问 API Key: " qwen_key
         read -p "  智谱AI API Key: " zhipu_key
 
+        echo ""
+        echo "正在安装国内大模型SDK..."
+        pip3 install dashscope zhipuai --quiet
+
         cat > .env << EOF
-# 国内大模型配置（推荐）
+# 通义千问 + 智谱AI 配置（国内稳定方案）
 DASHSCOPE_API_KEY=$qwen_key
 ZHIPUAI_API_KEY=$zhipu_key
 
-# LLM模式: auto, claude, qwen, zhipu
+# LLM模式: 自动选择（优先通义千问）
 LLM_MODE=auto
 
 # 速率限制（每秒请求数）
 RATE_LIMIT_PER_SECOND=4
 EOF
         echo -e "${GREEN}✅ .env 文件已创建（通义千问 + 智谱AI）${NC}"
+        echo -e "${BLUE}💡 通义千问用于对话，智谱AI用于向量化${NC}"
+
+    elif [ "$config_choice" = "4" ]; then
+        # Claude + OpenAI
+        echo ""
+        echo -e "${BLUE}配置 Claude + OpenAI (国际版):${NC}"
+        echo ""
+        echo "⚠️  注意: 需要代理才能访问"
+        echo ""
+        echo "📌 如何获取:"
+        echo "   Claude: https://console.anthropic.com/"
+        echo "   OpenAI: https://platform.openai.com/"
+        echo ""
+        read -p "  Claude API Key: " claude_key
+        read -p "  OpenAI API Key: " openai_key
+
+        cat > .env << EOF
+# Claude + OpenAI 配置（国际版）
+CLAUDE_API_KEY=$claude_key
+OPENAI_API_KEY=$openai_key
+
+# LLM模式: 自动选择（优先Claude）
+LLM_MODE=auto
+
+# 速率限制（每秒请求数）
+RATE_LIMIT_PER_SECOND=4
+EOF
+        echo -e "${GREEN}✅ .env 文件已创建（Claude + OpenAI）${NC}"
+        echo -e "${BLUE}💡 Claude用于对话，OpenAI用于向量化${NC}"
 
     else
         cp .env.example .env
         echo -e "${YELLOW}⏭️  已跳过配置，请手动编辑 .env 文件${NC}"
+        echo ""
+        echo "📖 参考文档:"
+        echo "   docs/MINIMAL_SETUP.md - 快速配置指南"
+        echo "   docs/API_KEYS_EXPLAINED.md - API密钥详解"
     fi
 fi
 
@@ -186,15 +276,23 @@ if [ -z "$build_now" ] || [ "$build_now" = "y" ] || [ "$build_now" = "Y" ]; then
     echo "开始构建知识库..."
     echo "这将从权威法律网站抓取内容并构建向量索引"
     echo ""
+    echo -e "${YELLOW}💡 提示: 如果遇到网页抓取失败，属于正常现象（网站反爬虫）${NC}"
+    echo "   可以稍后手动下载页面，详见: docs/SCRAPING_ISSUES.md"
+    echo ""
 
     if [ "$INSTALLED_CMD" = "true" ]; then
-        legal-rights build-kb
+        legal-rights build-kb || echo -e "${YELLOW}⚠️  知识库构建遇到问题，请查看上方错误信息${NC}"
     else
-        python3 -m legal_rights build-kb
+        python3 -m legal_rights build-kb || echo -e "${YELLOW}⚠️  知识库构建遇到问题，请查看上方错误信息${NC}"
     fi
 
     echo ""
-    echo -e "${GREEN}✅ 知识库构建完成！${NC}"
+    if [ $? -eq 0 ]; then
+        echo -e "${GREEN}✅ 知识库构建完成！${NC}"
+    else
+        echo -e "${YELLOW}⚠️  部分步骤失败，但可以继续使用${NC}"
+        echo "   参考文档: docs/SCRAPING_ISSUES.md"
+    fi
 else
     echo "跳过构建，稍后可运行:"
     if [ "$INSTALLED_CMD" = "true" ]; then
@@ -219,8 +317,8 @@ if [ "$INSTALLED_CMD" = "true" ]; then
     echo "  # 交互式对话"
     echo "  legal-rights chat"
     echo ""
-    echo "  # 查看统计信息"
-    echo "  legal-rights stats"
+    echo "  # 查看配置"
+    echo "  legal-rights config"
     echo ""
     echo "  # 查看帮助"
     echo "  legal-rights --help"
@@ -231,20 +329,28 @@ else
     echo "  # 交互式对话"
     echo "  python3 -m legal_rights chat"
     echo ""
-    echo "  # 查看统计信息"
-    echo "  python3 -m legal_rights stats"
+    echo "  # 查看配置"
+    echo "  python3 -m legal_rights config"
     echo ""
     echo "  # 查看帮助"
     echo "  python3 -m legal_rights --help"
 fi
 
 echo ""
-echo "📖 文档:"
-echo "  README.md - 项目介绍"
-echo "  docs/SETUP_GUIDE.md - 详细配置指南"
-echo "  docs/FAQ.md - 常见问题"
+echo "📖 重要文档:"
+echo "  ${BLUE}docs/MINIMAL_SETUP.md${NC} - 最简配置指南（推荐阅读）"
+echo "  ${BLUE}docs/API_KEYS_EXPLAINED.md${NC} - API密钥详解"
+echo "  ${BLUE}docs/MULTI_MODEL_SUPPORT.md${NC} - 多模型支持详解"
+echo "  ${BLUE}docs/FAQ.md${NC} - 常见问题"
+echo "  ${BLUE}docs/SCRAPING_ISSUES.md${NC} - 网页抓取问题处理"
+echo ""
+echo "💡 提示:"
+echo "  • 如果使用智谱AI，一个密钥可以完成所有功能"
+echo "  • 如果抓取失败，可以手动下载页面后添加到缓存"
+echo "  • 运行 'config' 命令查看当前配置状态"
 echo ""
 echo "🐛 遇到问题?"
-echo "  查看: docs/FAQ.md"
-echo "  反馈: https://github.com/YOUR_GITHUB_USERNAME/legal_rights/issues"
+echo "  1. 查看 docs/FAQ.md"
+echo "  2. 查看 docs/API_KEYS_EXPLAINED.md"
+echo "  3. 提交 Issue: https://github.com/YOUR_GITHUB_USERNAME/legal_rights/issues"
 echo ""
