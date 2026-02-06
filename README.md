@@ -52,8 +52,8 @@
 #### 1. 克隆仓库
 
 ```bash
-git clone https://github.com/YOUR_GITHUB_USERNAME/legal-rights-assistant.git
-cd legal-rights-assistant
+git clone https://github.com/natmusissunny/legal_rights.git
+cd legal_rights
 ```
 
 #### 2. 安装依赖
