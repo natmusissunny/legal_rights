@@ -62,16 +62,17 @@ def load_env_file(env_path: Optional[str] = None) -> dict:
     return env_vars
 
 
-def get_claude_api_key(api_key: Optional[str] = None) -> Optional[str]:
+def get_api_key(key_name: str, api_key: Optional[str] = None) -> Optional[str]:
     """
-    获取 Claude API 密钥
+    获取 API 密钥（通用方法）
 
     优先级：
     1. 函数参数传入的 api_key
-    2. 环境变量 CLAUDE_API_KEY
-    3. .env 文件中的 CLAUDE_API_KEY
+    2. 环境变量
+    3. .env 文件
 
     Args:
+        key_name: API密钥名称（如 CLAUDE_API_KEY）
         api_key: 直接传入的 API 密钥
 
     Returns:
@@ -82,48 +83,26 @@ def get_claude_api_key(api_key: Optional[str] = None) -> Optional[str]:
         return api_key
 
     # 2. 尝试从环境变量获取
-    env_key = os.getenv('CLAUDE_API_KEY')
+    env_key = os.getenv(key_name)
     if env_key:
         return env_key
 
     # 3. 尝试从 .env 文件获取
     env_vars = load_env_file()
-    if 'CLAUDE_API_KEY' in env_vars:
-        return env_vars['CLAUDE_API_KEY']
+    if key_name in env_vars:
+        return env_vars[key_name]
 
     return None
+
+
+def get_claude_api_key(api_key: Optional[str] = None) -> Optional[str]:
+    """获取 Claude API 密钥（兼容旧版）"""
+    return get_api_key('CLAUDE_API_KEY', api_key)
 
 
 def get_openai_api_key(api_key: Optional[str] = None) -> Optional[str]:
-    """
-    获取 OpenAI API 密钥（用于Embedding）
-
-    优先级：
-    1. 函数参数传入的 api_key
-    2. 环境变量 OPENAI_API_KEY
-    3. .env 文件中的 OPENAI_API_KEY
-
-    Args:
-        api_key: 直接传入的 API 密钥
-
-    Returns:
-        API 密钥，如果未找到则返回 None
-    """
-    # 1. 如果直接提供了密钥
-    if api_key:
-        return api_key
-
-    # 2. 尝试从环境变量获取
-    env_key = os.getenv('OPENAI_API_KEY')
-    if env_key:
-        return env_key
-
-    # 3. 尝试从 .env 文件获取
-    env_vars = load_env_file()
-    if 'OPENAI_API_KEY' in env_vars:
-        return env_vars['OPENAI_API_KEY']
-
-    return None
+    """获取 OpenAI API 密钥（兼容旧版）"""
+    return get_api_key('OPENAI_API_KEY', api_key)
 
 
 def get_rate_limit(default: int = 4) -> int:
