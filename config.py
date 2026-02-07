@@ -28,10 +28,15 @@ class Config:
     ]
 
     # LLM模式选择
-    # 可选值: 'auto', 'claude', 'qwen', 'deepseek', 'zhipu', 'kimi', 'minimax'
+    # 可选值: 'auto', 'litellm', 'claude', 'qwen', 'deepseek', 'zhipu', 'kimi', 'minimax'
     LLM_MODE: str = "auto"  # auto 会根据配置的API密钥自动选择
 
     # ==================== API密钥配置 ====================
+
+    # LiteLLM 配置（统一接口，可选）
+    LITELLM_MODEL: Optional[str] = None        # LiteLLM 模型名称（如 'gpt-4', 'claude-3-opus'）
+    LITELLM_API_BASE: Optional[str] = None     # LiteLLM 代理地址（如 'http://localhost:4000'）
+    LITELLM_API_KEY: Optional[str] = None      # LiteLLM API密钥（可选）
 
     # 对话生成 (LLM) API密钥
     CLAUDE_API_KEY: Optional[str] = None       # Claude (国际，需代理)
@@ -79,6 +84,11 @@ class Config:
     @classmethod
     def load(cls):
         """加载配置（从环境变量或.env文件）"""
+        # 加载 LiteLLM 配置
+        cls.LITELLM_MODEL = get_api_key('LITELLM_MODEL')
+        cls.LITELLM_API_BASE = get_api_key('LITELLM_API_BASE')
+        cls.LITELLM_API_KEY = get_api_key('LITELLM_API_KEY')
+
         # 加载所有LLM API密钥
         cls.CLAUDE_API_KEY = get_api_key('CLAUDE_API_KEY')
         cls.DASHSCOPE_API_KEY = get_api_key('DASHSCOPE_API_KEY')
@@ -109,8 +119,10 @@ class Config:
         if cls.LLM_MODE != "auto":
             return cls.LLM_MODE
 
-        # 优先级：便宜的国内大模型 > 其他国内 > Claude
-        if cls.DEEPSEEK_API_KEY:
+        # 优先级：LiteLLM > 便宜的国内大模型 > 其他国内 > Claude
+        if cls.LITELLM_MODEL:
+            return "litellm"  # LiteLLM 统一接口
+        elif cls.DEEPSEEK_API_KEY:
             return "deepseek"  # 最便宜，推荐
         elif cls.DASHSCOPE_API_KEY:
             return "qwen"  # 通义千问，稳定

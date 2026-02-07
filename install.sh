@@ -97,9 +97,15 @@ if [ "$HAS_ENV" != "true" ]; then
     echo "     - 成本: $0.013/次"
     echo "     - 质量最高"
     echo ""
-    echo "  5) 跳过配置（稍后手动配置）"
+    echo "  ${BLUE}5) LiteLLM 统一接口${NC} 🔧 高级用户"
+    echo "     - 统一管理所有模型"
+    echo "     - 支持100+模型"
+    echo "     - 负载均衡、成本追踪"
+    echo "     - 需要配置代理或模型密钥"
     echo ""
-    read -p "选择 (1-5，默认 1): " config_choice
+    echo "  6) 跳过配置（稍后手动配置）"
+    echo ""
+    read -p "选择 (1-6，默认 1): " config_choice
 
     config_choice=${config_choice:-1}
 
@@ -222,6 +228,104 @@ EOF
         echo -e "${GREEN}✅ .env 文件已创建（Claude + OpenAI）${NC}"
         echo -e "${BLUE}💡 Claude用于对话，OpenAI用于向量化${NC}"
 
+    elif [ "$config_choice" = "5" ]; then
+        # LiteLLM 统一接口
+        echo ""
+        echo -e "${BLUE}配置 LiteLLM 统一接口 (高级功能):${NC}"
+        echo ""
+        echo "LiteLLM 支持两种使用方式:"
+        echo ""
+        echo "  1) 使用 LiteLLM 代理服务器 (推荐)"
+        echo "     - 需要先启动 LiteLLM 代理"
+        echo "     - 支持负载均衡、成本追踪等高级功能"
+        echo ""
+        echo "  2) 直接使用 LiteLLM"
+        echo "     - 无需代理，配置简单"
+        echo "     - 需要配置对应模型的 API 密钥"
+        echo ""
+        read -p "选择 (1/2，默认 1): " litellm_mode
+        litellm_mode=${litellm_mode:-1}
+
+        if [ "$litellm_mode" = "1" ]; then
+            # 使用代理
+            echo ""
+            echo "📌 使用 LiteLLM 代理模式"
+            echo ""
+            read -p "  LiteLLM 代理地址 (默认 http://localhost:4000): " litellm_base
+            litellm_base=${litellm_base:-http://localhost:4000}
+            read -p "  LiteLLM 模型名称 (如 gpt-4, claude): " litellm_model
+            read -p "  LiteLLM API Key (可选，按Enter跳过): " litellm_key
+            read -p "  智谱AI API Key (用于向量化): " zhipu_key
+
+            echo ""
+            echo "正在安装 LiteLLM 和依赖..."
+            pip3 install 'litellm[proxy]' zhipuai --quiet
+
+            cat > .env << EOF
+# LiteLLM 代理配置（高级功能）
+LITELLM_MODEL=$litellm_model
+LITELLM_API_BASE=$litellm_base
+$([ -n "$litellm_key" ] && echo "LITELLM_API_KEY=$litellm_key" || echo "# LITELLM_API_KEY=")
+
+# Embedding 配置
+ZHIPUAI_API_KEY=$zhipu_key
+
+# LLM模式: 使用 LiteLLM
+LLM_MODE=litellm
+
+# 速率限制（每秒请求数）
+RATE_LIMIT_PER_SECOND=4
+EOF
+            echo -e "${GREEN}✅ .env 文件已创建（LiteLLM 代理模式）${NC}"
+            echo ""
+            echo -e "${YELLOW}⚠️  使用前需要启动 LiteLLM 代理:${NC}"
+            echo "   1. 创建 litellm_config.yaml 配置文件"
+            echo "   2. 运行: litellm --config litellm_config.yaml --port 4000"
+            echo ""
+            echo "📖 详细文档: docs/LITELLM_INTEGRATION.md"
+
+        else
+            # 直接使用
+            echo ""
+            echo "📌 使用 LiteLLM 直接模式"
+            echo ""
+            read -p "  LiteLLM 模型名称 (如 claude-3-opus-20240229): " litellm_model
+            echo ""
+            echo "需要配置对应模型的 API 密钥:"
+            echo "  - 如果使用 Claude: 需要 ANTHROPIC_API_KEY"
+            echo "  - 如果使用 OpenAI: 需要 OPENAI_API_KEY"
+            echo "  - 如果使用 通义千问: 需要 DASHSCOPE_API_KEY"
+            echo ""
+            read -p "  对应模型的 API Key (环境变量会自动读取): " model_key_name
+            read -p "  API Key 值: " model_key_value
+            read -p "  智谱AI API Key (用于向量化): " zhipu_key
+
+            echo ""
+            echo "正在安装 LiteLLM 和依赖..."
+            pip3 install litellm zhipuai --quiet
+
+            cat > .env << EOF
+# LiteLLM 直接模式配置
+LITELLM_MODEL=$litellm_model
+
+# 对应模型的 API 密钥
+$model_key_name=$model_key_value
+
+# Embedding 配置
+ZHIPUAI_API_KEY=$zhipu_key
+
+# LLM模式: 使用 LiteLLM
+LLM_MODE=litellm
+
+# 速率限制（每秒请求数）
+RATE_LIMIT_PER_SECOND=4
+EOF
+            echo -e "${GREEN}✅ .env 文件已创建（LiteLLM 直接模式）${NC}"
+            echo -e "${BLUE}💡 LiteLLM 会自动读取环境变量中的模型密钥${NC}"
+            echo ""
+            echo "📖 详细文档: docs/LITELLM_INTEGRATION.md"
+        fi
+
     else
         cp .env.example .env
         echo -e "${YELLOW}⏭️  已跳过配置，请手动编辑 .env 文件${NC}"
@@ -229,6 +333,7 @@ EOF
         echo "📖 参考文档:"
         echo "   docs/MINIMAL_SETUP.md - 快速配置指南"
         echo "   docs/API_KEYS_EXPLAINED.md - API密钥详解"
+        echo "   docs/LITELLM_INTEGRATION.md - LiteLLM 集成指南"
     fi
 fi
 
@@ -341,13 +446,16 @@ echo "📖 重要文档:"
 echo "  ${BLUE}docs/MINIMAL_SETUP.md${NC} - 最简配置指南（推荐阅读）"
 echo "  ${BLUE}docs/API_KEYS_EXPLAINED.md${NC} - API密钥详解"
 echo "  ${BLUE}docs/MULTI_MODEL_SUPPORT.md${NC} - 多模型支持详解"
+echo "  ${BLUE}docs/LITELLM_INTEGRATION.md${NC} - LiteLLM 集成指南（高级功能）"
 echo "  ${BLUE}docs/FAQ.md${NC} - 常见问题"
 echo "  ${BLUE}docs/SCRAPING_ISSUES.md${NC} - 网页抓取问题处理"
 echo ""
 echo "💡 提示:"
 echo "  • 如果使用智谱AI，一个密钥可以完成所有功能"
+echo "  • 如果使用 LiteLLM，可以统一管理所有模型（负载均衡、成本追踪）"
 echo "  • 如果抓取失败，可以手动下载页面后添加到缓存"
 echo "  • 运行 'config' 命令查看当前配置状态"
+echo "  • 可以通过 LLM_MODE 环境变量随时切换模型"
 echo ""
 echo "🐛 遇到问题?"
 echo "  1. 查看 docs/FAQ.md"

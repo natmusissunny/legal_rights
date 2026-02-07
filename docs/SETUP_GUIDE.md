@@ -13,10 +13,16 @@
 
 ### 必需的 API 密钥
 
-本项目需要两个 API 密钥：
+本项目需要配置以下 API 密钥（根据选择的方案不同）：
 
-1. **Claude API 密钥** - 用于大语言模型问答
-2. **OpenAI API 密钥** - 用于文本向量化 (Embedding)
+**基础方案**（二选一）：
+1. **Claude API + OpenAI API** - 国际版，高质量
+2. **国内大模型 + 智谱AI** - 国内版，成本低，无需代理
+
+**高级方案**：
+3. **LiteLLM 统一接口** - 支持100+模型，统一管理（推荐高级用户）
+
+详细对比见 [多模型支持指南](MULTI_MODEL_SUPPORT.md) 和 [LiteLLM 集成指南](LITELLM_INTEGRATION.md)
 
 ## 🔑 获取 API 密钥
 
@@ -102,17 +108,58 @@ notepad .env
 
 #### 步骤 3: 填入 API 密钥
 
-将您的实际密钥替换到以下位置：
+根据您选择的方案，填入相应的 API 密钥：
+
+**方案1: Claude + OpenAI（国际版）**
 
 ```env
-# Claude API密钥（必需）
+# Claude API密钥（用于对话）
 CLAUDE_API_KEY=sk-ant-api03-your-actual-claude-key-here
 
-# OpenAI API密钥（必需，用于Embedding）
+# OpenAI API密钥（用于Embedding）
 OPENAI_API_KEY=sk-your-actual-openai-key-here
 
-# 可选配置
+# LLM模式: 自动选择
+LLM_MODE=auto
+```
 
+**方案2: 通义千问 + 智谱AI（国内版，推荐）**
+
+```env
+# 通义千问 API密钥（用于对话）
+DASHSCOPE_API_KEY=sk-your-qwen-key
+
+# 智谱AI API密钥（用于Embedding）
+ZHIPUAI_API_KEY=your-zhipu-key
+
+# LLM模式: 自动选择
+LLM_MODE=auto
+```
+
+**方案3: LiteLLM 统一接口（高级用户）**
+
+```env
+# 方式A: 使用 LiteLLM 代理
+LITELLM_MODEL=gpt-4                    # 或 claude-3-opus 等
+LITELLM_API_BASE=http://localhost:4000 # LiteLLM代理地址
+# LITELLM_API_KEY=                     # 可选
+
+# 方式B: 直接使用 LiteLLM
+# LITELLM_MODEL=claude-3-opus-20240229
+# ANTHROPIC_API_KEY=your-claude-key    # 对应模型的密钥
+
+# Embedding 配置
+ZHIPUAI_API_KEY=your-zhipu-key
+
+# LLM模式: 使用 LiteLLM
+LLM_MODE=litellm
+```
+
+> 💡 **LiteLLM 详细配置**: 参见 [LiteLLM 集成指南](LITELLM_INTEGRATION.md)
+
+**可选配置**
+
+```env
 # 速率限制（每秒请求数，默认4）
 RATE_LIMIT_PER_SECOND=4
 
@@ -394,6 +441,38 @@ pip install -r requirements.txt --force-reinstall
 2. 使用 `--force` 强制重建: `python -m legal_rights build-kb --force`
 3. 查看错误日志
 
+### Q6: 如何使用 LiteLLM？
+
+**使用场景**:
+- 需要统一管理多个模型
+- 需要负载均衡和失败重试
+- 需要成本追踪和速率限制
+
+**解决**:
+1. 查看 [LiteLLM 集成指南](LITELLM_INTEGRATION.md)
+2. 选择使用方式（代理模式或直接模式）
+3. 配置 .env 文件中的 LiteLLM 相关变量
+4. 设置 `LLM_MODE=litellm`
+
+### Q7: 如何在多个模型之间切换？
+
+**解决**:
+编辑 `.env` 文件中的 `LLM_MODE` 变量：
+
+```env
+# 自动选择（优先级：LiteLLM > DeepSeek > 通义千问 > ...）
+LLM_MODE=auto
+
+# 强制使用特定模型
+LLM_MODE=deepseek    # DeepSeek
+LLM_MODE=qwen        # 通义千问
+LLM_MODE=zhipu       # 智谱AI
+LLM_MODE=claude      # Claude
+LLM_MODE=litellm     # LiteLLM 统一接口
+```
+
+保存后无需重启，下次运行自动生效。
+
 ## 📞 获取帮助
 
 如果遇到其他问题：
@@ -401,6 +480,7 @@ pip install -r requirements.txt --force-reinstall
 1. 查看 [README.md](../README.md) 了解项目概况
 2. 查看 [ARCHITECTURE.md](./ARCHITECTURE.md) 了解架构设计
 3. 查看 [API_GUIDE.md](./API_GUIDE.md) 了解 API 使用
+4. 查看 [LITELLM_INTEGRATION.md](./LITELLM_INTEGRATION.md) 了解 LiteLLM 集成
 
 ---
 

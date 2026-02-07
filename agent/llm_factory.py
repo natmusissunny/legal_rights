@@ -1,7 +1,7 @@
 """
 LLM 客户端工厂
 根据配置自动选择合适的 LLM 客户端
-支持: Claude, 通义千问, DeepSeek, 智谱AI(GLM), 元宝(MiniMax), Kimi
+支持: LiteLLM(统一接口), Claude, 通义千问, DeepSeek, 智谱AI(GLM), 元宝(MiniMax), Kimi
 """
 from typing import Optional, List, Dict
 from ..config import Config
@@ -437,7 +437,7 @@ def create_llm_client(llm_type: Optional[str] = None) -> LLMClientBase:
     创建LLM客户端
 
     Args:
-        llm_type: 指定类型 ('claude', 'qwen', 'deepseek', 'zhipu', 'minimax', 'kimi') 或 None（自动选择）
+        llm_type: 指定类型 ('litellm', 'claude', 'qwen', 'deepseek', 'zhipu', 'minimax', 'kimi') 或 None（自动选择）
 
     Returns:
         LLM客户端实例
@@ -445,6 +445,11 @@ def create_llm_client(llm_type: Optional[str] = None) -> LLMClientBase:
     Raises:
         ValueError: 如果没有可用的配置
     """
+    # 优先检查 LiteLLM
+    if llm_type == "litellm" or (not llm_type and Config.LITELLM_MODEL):
+        from .litellm_client import LiteLLMClient
+        return LiteLLMClient()
+
     # 如果指定了类型
     if llm_type:
         client_map = {
